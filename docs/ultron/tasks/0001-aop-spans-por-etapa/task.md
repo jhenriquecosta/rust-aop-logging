@@ -5,7 +5,7 @@ branch: feature/0001-aop-spans-por-etapa
 estado: em andamento
 worktree: .claude/worktrees/feature-0001-aop-spans-por-etapa
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-slices
+next_skill: ultron-coder
 
 ## Objetivo
 
@@ -32,7 +32,7 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 - **Formato:** serviço async simulado (tokio), sem servidor HTTP; o binário executa o pipeline como se fosse uma requisição.
 - **AOP:** `#[instrument]` do tracing como aspecto pronto + macro de atributo própria (`#[aop_span]`, crate proc-macro) para os passos CPU-bound.
 - **Pipeline:** `handle` (span externo) → `validate` (CPU) → `load_customer` (IO simulado) → `price` (CPU) → `apply_rules` (CPU) → `persist` (IO simulado) → `render` (CPU).
-- **Modos:** `baseline` (só o span externo — reproduz a produção) e `aop` (span por etapa).
+- **Modos:** `baseline` (span externo e spans de IO automáticos; passos CPU sem span, reproduzindo a produção) e `aop` (span por etapa).
 - **Saída:** `tracing-subscriber` fmt com `FmtSpan::CLOSE`; OTLP documentado como caminho de produção, não implementado.
 - **Estrutura:** workspace Cargo — `aop-macros` (proc-macro) + `demo` (binário).
 - **aspect-rs:** apenas comparação no README; nenhuma dependência. É 0.1.x, sem releases, e não integra tracing/OpenTelemetry.
@@ -42,7 +42,7 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 
 - [ ] O workspace compila e roda com `cargo run -- baseline` e `cargo run -- aop`.
 - [ ] No modo `aop`, cada etapa do pipeline emite um span próprio com duração visível na saída.
-- [ ] No modo `baseline`, o pipeline inteiro aparece em um único span (reproduz o problema).
+- [ ] No modo `baseline`, aparecem o span externo e os spans de IO, e nenhum span de etapa CPU (reproduz o problema).
 - [ ] A instrumentação das etapas CPU vem da macro `#[aop_span]`, não de chamadas manuais de span espalhadas.
 - [ ] O README explica o que é AOP em Rust, mostra o antes/depois e compara com `aspect-rs` e OTLP.
 - [ ] Os testes de captura verificam os spans emitidos em ambos os modos.
@@ -53,3 +53,14 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 - Padrão correto para attribute macro em `async fn` (spans via `Instrument`, preservando o `Future`).
 - Precisão/limitações do timing de spans do `tracing` para blocos CPU-bound (tempo busy/idle só do future atual).
 - Fatos do `aspect-rs` a registrar como evidência (crates 0.1.x, ausência de integração com tracing, maturidade).
+
+## Fatias publicadas
+
+| # | Fatia | Issue | Estado |
+|---|---|---|---|
+| 1 | Pipeline executável no modo `baseline` | — (local) | pendente |
+| 2 | Macro `#[aop_span]` e modo `aop` | — (local) | pendente |
+| 3 | Macro em `async fn` + captura de spans | — (local) | pendente |
+| 4 | README e comparação | — (local) | pendente |
+
+Os corpos estão em `slices/` (fatias 01–04), na ordem de execução.

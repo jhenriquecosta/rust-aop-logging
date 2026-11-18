@@ -6,11 +6,11 @@
 | **Projeto** | rust-aop-logging |
 | **Autor** | ULTRON · skill ultron-prd — Operador: J Henrique Costa |
 | **Data** | 2026-11-18 |
-| **Versão do documento** | 1.0 |
+| **Versão do documento** | 1.1 |
 | **Status** | draft |
 | **Rastreabilidade** | Task 0001-aop-spans-por-etapa · branch `feature/0001-aop-spans-por-etapa` |
 
-> **Uma linha:** um workspace Rust que mostra o mesmo pipeline em dois modos — um span único (baseline) e um span por etapa via macro de atributo (aop) — para medir o tempo de passos CPU-bound que não fazem IO.
+> **Uma linha:** um workspace Rust que mostra o mesmo pipeline em dois modos — spans de IO automáticos com os passos CPU invisíveis (baseline) e um span por etapa via macro de atributo (aop) — para medir o tempo de passos CPU-bound que não fazem IO.
 
 ## Declaração do problema
 
@@ -22,7 +22,7 @@ Um workspace Rust que demonstra instrumentação orientada a aspectos:
 
 - `#[instrument]` do `tracing` nos passos que representam IO já instrumentado (clientes simulados).
 - Uma macro de atributo própria, `#[aop_span]`, declarada em uma crate `proc-macro`, aplicada aos passos CPU-bound.
-- O mesmo pipeline executado em dois modos: `baseline` (um único span, reproduzindo a produção) e `aop` (um span por etapa).
+- O mesmo pipeline executado em dois modos: `baseline` (span externo e spans de IO automáticos; os passos CPU sem span próprio, reproduzindo a produção) e `aop` (um span por etapa).
 - Saída de terminal com `FmtSpan::CLOSE`, mostrando a duração de cada span (tempo ocupado e ocioso).
 - README que explica o que é AOP em Rust, mostra o antes/depois, compara com `aspect-rs` e aponta o caminho OTLP para produção.
 
@@ -90,7 +90,7 @@ Sem lockfile nesta data — o workspace ainda não existe. Após o primeiro buil
 
 ## Critérios de aceitação
 
-- [AC1] `cargo run -- baseline` executa o pipeline e imprime **um único span** cobrindo todas as etapas.
+- [AC1] `cargo run -- baseline` executa o pipeline e imprime o **span externo e os spans de IO** automáticos; nenhum span de etapa CPU aparece.
 - [AC2] `cargo run -- aop` executa o mesmo pipeline e imprime **um span por etapa** (`validate`, `load_customer`, `price`, `apply_rules`, `persist`, `render`).
 - [AC3] Em ambos os modos, a saída mostra a duração de cada span (campos de tempo ocupado e ocioso) quando há timestamps.
 - [AC4] As etapas CPU-bound são instrumentadas por `#[aop_span]`, sem chamadas manuais de `span!`/`info_span!` dentro dos corpos de `validate`, `price`, `apply_rules` e `render`.
@@ -109,6 +109,7 @@ Descoberta da task 0001 (2026-11-18) e `research.md` da mesma task — versões 
 
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
+| 1.1 | 2026-11-18 | ULTRON · ultron-slices | AC1 ajustado: baseline fiel à produção (IO instrumentado, CPU invisível) |
 | 1.0 | 2026-11-18 | ULTRON · ultron-prd | Versão inicial, a partir da descoberta e da research 0001 |
 
 ## Rastreabilidade
