@@ -5,7 +5,7 @@ branch: feature/0002-log-rotativo-por-data
 estado: em andamento
 worktree: .claude/worktrees/feature-0002-log-rotativo-por-data
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-coder
+next_skill: ultron-tdd
 
 Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação por data. A motivação é ter o trace persistido para análise posterior sem depender de um coletor. Os detalhes — granularidade da rotação (diária), nome e diretório do arquivo, retenção, formato e se o stdout continua — ficam para a descoberta.
 
@@ -42,3 +42,7 @@ Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação
 | 3 | README e fuso documentado | — (local) | publicada |
 
 Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
+
+## Exceções registradas
+
+- Portão `logging` (médio) do coder desviado em 2026-11-18: o projeto não tem `docs/ultron/agents/logging.md`, mas o PRD-0002 fixa a configuração de logging da feature (dois sinks, `FmtSpan::CLOSE`, retenção de 7, writer não bloqueante); uma convenção separada duplicaria a decisão. Aprovado pelo Operador.
