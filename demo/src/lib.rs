@@ -131,6 +131,14 @@ fn items_count_impl(req: &Request) -> u32 {
     req.items.iter().map(|item| item.quantity).sum()
 }
 
+fn render_impl(customer_name: String, total_cents: u64, items_count: u32) -> Response {
+    Response {
+        customer_name,
+        total_cents,
+        items_count,
+    }
+}
+
 /// Executa o pipeline completo: valida, carrega o cliente, precifica,
 /// aplica as regras, persiste e monta a resposta.
 #[tracing::instrument(skip(req))]
@@ -149,9 +157,46 @@ pub async fn handle(req: Request) -> Result<Response, PipelineError> {
     };
     OrderRepository::new(IO_DELAY).persist(&order).await?;
 
-    Ok(Response {
-        customer_name: customer.name,
+    Ok(render_impl(customer.name, total_cents, items_count))
+}
+
+/// Etapa CPU instrumentada pelo aspecto `#[aop_span]`.
+#[aop_macros::aop_span]
+pub fn validate(req: &Request) -> Result<(), PipelineError> {
+    validate_impl(req)
+}
+
+#[aop_macros::aop_span]
+pub fn price(req: &Request) -> u64 {
+    price_impl(req)
+}
+
+#[aop_macros::aop_span]
+pub fn apply_rules(subtotal: u64, customer: &Customer) -> u64 {
+    apply_rules_impl(subtotal, customer)
+}
+
+#[aop_macros::aop_span]
+pub fn render(customer_name: String, total_cents: u64, items_count: u32) -> Response {
+    render_impl(customer_name, total_cents, items_count)
+}
+
+/// Executa o pipeline com o modo `aop`: as etapas CPU ganham span próprio.
+#[tracing::instrument(name = "handle", skip(req))]
+pub async fn handle_aop(req: Request) -> Result<Response, PipelineError> {
+    validate(&req)?;
+
+    let customer = CustomerClient::new(IO_DELAY).load(req.customer_id).await?;
+    let subtotal = price(&req);
+    let total_cents = apply_rules(subtotal, &customer);
+    let items_count = items_count_impl(&req);
+
+    let order = Order {
+        customer: customer.clone(),
         total_cents,
         items_count,
-    })
+    };
+    OrderRepository::new(IO_DELAY).persist(&order).await?;
+
+    Ok(render(customer.name, total_cents, items_count))
 }

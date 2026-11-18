@@ -59,8 +59,8 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 | # | Fatia | Issue | Estado |
 |---|---|---|---|
 | 1 | Pipeline executável no modo `baseline` | — (local) | concluída · verificada 2026-11-18 |
-| 2 | Macro `#[aop_span]` e modo `aop` | — (local) | pendente |
-| 3 | Macro em `async fn` + captura de spans | — (local) | pendente |
+| 2 | Macro `#[aop_span]` e modo `aop` | — (local) | concluída · verificada 2026-11-18 |
+| 3 | Macro em `async fn` + captura de spans | — (local) | concluída · verificada 2026-11-18 |
 | 4 | README e comparação | — (local) | pendente |
 
 Os corpos estão em `slices/` (fatias 01–04), na ordem de execução.
