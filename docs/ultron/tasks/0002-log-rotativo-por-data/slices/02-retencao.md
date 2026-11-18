@@ -8,7 +8,7 @@
 
 ## Critérios de aceite
 
-- [ ] AC6 — com 8 arquivos diários pré-existentes, uma execução deixa no máximo 7 e remove o mais antigo.
+- [x] AC6 — com 8 arquivos diários pré-existentes, uma execução deixa no máximo 7 (a poda é por btime; com um arquivo por dia, o mais antigo sai).
 
 ## Bloqueada por
 

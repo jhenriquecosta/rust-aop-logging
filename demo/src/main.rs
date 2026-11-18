@@ -11,6 +11,7 @@ fn instalar_tracing(dir: std::path::PathBuf) -> tracing_appender::non_blocking::
     let appender = tracing_appender::rolling::RollingFileAppender::builder()
         .rotation(tracing_appender::rolling::Rotation::DAILY)
         .filename_prefix("demo.log")
+        .max_log_files(7)
         .build(&dir)
         .expect("criar o appender do log");
     let (non_blocking, guard) = tracing_appender::non_blocking(appender);

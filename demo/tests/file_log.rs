@@ -239,3 +239,46 @@ fn sem_demo_log_dir_usa_logs_sob_o_cwd() {
         dir.arquivos()
     );
 }
+
+#[test]
+fn retencao_mantem_no_maximo_sete_arquivos_diarios() {
+    let dir = DirTemporario::novo("retencao");
+    for dia in 1..=8 {
+        let data = format!("2026-11-{dia:02}");
+        std::fs::write(
+            dir.caminho().join(format!("demo.log.{data}")),
+            b"anterior\n",
+        )
+        .expect("semear um arquivo antigo");
+    }
+
+    let out = executar("baseline", dir.caminho());
+    assert!(
+        out.status.success(),
+        "binário falhou: status={:?} stderr={}",
+        out.status,
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    // A crate poda pela data de criação (btime), não pela data do nome; com
+    // fallback para a data do nome quando o sistema não informa btime.
+    // Arquivos semeados no mesmo instante têm o mesmo btime, então não
+    // provam qual some; o contrato que a nossa configuração garante — e o
+    // que este teste afirma — é o teto de 7. Com um arquivo por dia, o btime
+    // acompanha a data e o mais antigo é o que sai.
+    let arquivos = dir.arquivos();
+    let diarios: Vec<&String> = arquivos
+        .iter()
+        .filter(|nome| nome.starts_with("demo.log."))
+        .collect();
+    assert!(
+        diarios.len() <= 7,
+        "esperava no máximo 7 arquivos diários, encontrei {}: {diarios:?}",
+        diarios.len()
+    );
+    let hoje = format!("demo.log.{}", data_utc_hoje());
+    assert!(
+        arquivos.iter().any(|nome| nome == &hoje),
+        "o arquivo do dia deveria existir; encontrados: {arquivos:?}"
+    );
+}

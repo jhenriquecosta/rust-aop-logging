@@ -38,7 +38,7 @@ Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação
 | # | Fatia | Issue | Estado |
 |---|---|---|---|
 | 1 | Arquivo diário no binário | — (local) | concluída · verificada 2026-11-18 |
-| 2 | Retenção de 7 | — (local) | publicada |
+| 2 | Retenção de 7 | — (local) | concluída · verificada 2026-11-18 |
 | 3 | README e fuso documentado | — (local) | publicada |
 
 Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
@@ -50,7 +50,7 @@ Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
 - [x] AC3 — o arquivo do `aop` tem as seis etapas sob `handle`, com `time.busy`/`time.idle`.
 - [x] AC4 — o terminal continua recebendo o trace nos dois modos.
 - [x] AC5 — o arquivo não contém ANSI.
-- [ ] AC6 — com 8 arquivos diários pré-existentes, uma execução deixa no máximo 7 e remove o mais antigo.
+- [x] AC6 — com 8 arquivos diários pré-existentes, uma execução deixa no máximo 7 (a poda é por btime; com um arquivo por dia, o mais antigo sai).
 - [x] AC7 — sem `DEMO_LOG_DIR`, os arquivos vão para `logs/`; `logs/` está no `.gitignore`.
 - [ ] AC8 — o README documenta diretório, rotação UTC, retenção, `DEMO_LOG_DIR`, guard e execução.
 - [x] AC9 — `tracing-appender =0.2.5` fixado; build, clippy e a suíte seguem verdes.

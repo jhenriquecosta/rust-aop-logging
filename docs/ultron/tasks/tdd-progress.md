@@ -40,6 +40,7 @@ Stack: Rust 1.100 · `cargo test` · tracing 0.1.44 · tracing-subscriber 0.3.23
 - [x] 4. o arquivo do `aop` tem as seis etapas sob `handle` ✓ 2026-11-18
 - [x] 5. o `stdout` continua com o trace nos dois modos ✓ 2026-11-18
 - [x] 6. sem `DEMO_LOG_DIR`, o destino é `logs/` sob o cwd ✓ 2026-11-18
+- [x] 7. a retenção mantém no máximo 7 arquivos diários ✓ 2026-11-18
 
 ### Cycle log
 | # | Behavior | Result | Notes |
@@ -50,6 +51,7 @@ Stack: Rust 1.100 · `cargo test` · tracing 0.1.44 · tracing-subscriber 0.3.23
 | 4 | conteúdo do aop no arquivo | ✓ GREEN | hierarquia `handle:<etapa>` afirmada |
 | 5 | stdout nos dois modos | ✓ GREEN | idem; `time.busy` presente |
 | 6 | destino padrão `logs/` sem env | ✓ GREEN | fallback relativo ao cwd; `.gitignore` com `/logs/` |
+| 7 | retenção mantém no máximo 7 arquivos diários | ✓ GREEN | `max_log_files(7)`; a crate poda por btime, com fallback para a data do nome — o contrato afirmado é o teto de 7 |
 
 ### Open issues found during implementation
 - `docs/ultron/agents/stack.md` continua dizendo `stack: n/d`, embora o repositório seja Rust — fora do escopo desta fatia; reportar ao final.

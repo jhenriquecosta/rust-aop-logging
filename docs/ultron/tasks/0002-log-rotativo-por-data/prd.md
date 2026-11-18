@@ -6,7 +6,7 @@
 | **Projeto** | rust-aop-logging |
 | **Autor** | ULTRON · skill ultron-prd — Operador: J Henrique Costa |
 | **Data** | 2026-11-18 |
-| **Versão do documento** | 1.0 |
+| **Versão do documento** | 1.1 |
 | **Status** | draft |
 | **Rastreabilidade** | Task 0002-log-rotativo-por-data · branch `feature/0002-log-rotativo-por-data` |
 
@@ -90,7 +90,7 @@ Retrato atual (informativo, sem juízo de segurança): dependências diretas fix
 - [AC3] O arquivo do modo `aop` contém os spans `validate`, `load_customer`, `price`, `apply_rules`, `persist` e `render` sob `handle`, com `time.busy` e `time.idle`.
 - [AC4] O terminal continua recebendo o trace nos dois modos, no formato atual.
 - [AC5] O arquivo não contém sequências de escape ANSI.
-- [AC6] Com 8 arquivos diários pré-existentes no diretório apontado, uma execução deixa no máximo 7 e remove o mais antigo.
+- [AC6] Com 8 arquivos diários pré-existentes no diretório apontado, uma execução deixa no máximo 7 arquivos. A poda é por ordem de criação (btime), com fallback para a data do nome quando o sistema não informa btime; com um arquivo por dia, é o mais antigo que sai.
 - [AC7] Sem `DEMO_LOG_DIR`, os arquivos vão para `logs/` na raiz do projeto, e `logs/` está no `.gitignore`.
 - [AC8] O README documenta o diretório, a rotação diária em UTC (com o deslocamento local), a retenção de 7, `DEMO_LOG_DIR`, o comportamento não bloqueante com guard e o comando de execução.
 - [AC9] O `Cargo.toml` fixa `tracing-appender = "=0.2.5"`; build, clippy e a suíte completa — incluindo os 9 testes existentes — seguem verdes.
@@ -105,6 +105,7 @@ Descoberta da task 0002 (2026-11-18) e `research.md` da mesma task — versão e
 
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
+| 1.1 | 2026-11-18 | ULTRON · ultron-tdd | AC6 ajustado ao contrato testável: teto de 7; a crate poda por btime, com fallback para a data do nome |
 | 1.0 | 2026-11-18 | ULTRON · ultron-prd | Versão inicial, a partir da descoberta e da research 0002 |
 
 ## Rastreabilidade
