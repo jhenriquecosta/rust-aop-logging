@@ -5,7 +5,7 @@ branch: feature/0002-log-rotativo-por-data
 estado: em andamento
 worktree: .claude/worktrees/feature-0002-log-rotativo-por-data
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-slices
+next_skill: ultron-coder
 
 Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação por data. A motivação é ter o trace persistido para análise posterior sem depender de um coletor. Os detalhes — granularidade da rotação (diária), nome e diretório do arquivo, retenção, formato e se o stdout continua — ficam para a descoberta.
 
@@ -32,3 +32,13 @@ Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação
 - Suporte nativo a retenção (`max_log_files` ou equivalente) e como ela conta os arquivos.
 - Semântica do `non_blocking` + `WorkerGuard`: o que garante o flush no encerramento e o que se perde num `exit` abrupto.
 - Como compor dois `fmt` layers (terminal + arquivo) com `FmtSpan::CLOSE`, ANSI desligado só no arquivo, e o `init()` global trocado por `registry().with(...)`.
+
+## Fatias publicadas
+
+| # | Fatia | Issue | Estado |
+|---|---|---|---|
+| 1 | Arquivo diário no binário | — (local) | publicada |
+| 2 | Retenção de 7 | — (local) | publicada |
+| 3 | README e fuso documentado | — (local) | publicada |
+
+Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
