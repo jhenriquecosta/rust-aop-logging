@@ -2,10 +2,11 @@
 
 tipo: feature
 branch: feature/0001-aop-spans-por-etapa
-estado: em andamento
+publicacao: pendente
+estado: concluído
 worktree: .claude/worktrees/feature-0001-aop-spans-por-etapa
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-verify
+next_skill: 
 
 ## Objetivo
 
