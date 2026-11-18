@@ -5,7 +5,7 @@ branch: feature/0001-aop-spans-por-etapa
 estado: em andamento
 worktree: .claude/worktrees/feature-0001-aop-spans-por-etapa
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-prd
+next_skill: ultron-slices
 
 ## Objetivo
 
