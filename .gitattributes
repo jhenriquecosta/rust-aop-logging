@@ -1,0 +1,2 @@
+# a trilha do Ultron é append-only — merge por união, nunca escolha
+docs/ultron/journal/**/*.jsonl merge=union
