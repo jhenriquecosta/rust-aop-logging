@@ -32,6 +32,13 @@ cargo run -- aop        # a solução: um span por etapa
 cargo test              # a suíte que prova os dois modos
 ```
 
+O `start.sh` faz o mesmo, com o modo `aop` como padrão:
+
+```bash
+./start.sh            # equivale a cargo run -- aop
+./start.sh baseline   # equivale a cargo run -- baseline
+```
+
 **Como saber que deu certo:** o modo `baseline` imprime o span `handle` e os spans de IO (`load_customer`, `persist`), sem nenhum span de etapa CPU. O modo `aop` imprime os seis spans de etapa sob `handle`.
 
 Os dois comandos também gravam o trace em `logs/demo.log.<data>` no diretório de onde você executa. O terminal e o arquivo recebem o mesmo trace; a seção [Log em arquivo](#log-em-arquivo) detalha caminho, rotação e retenção.
