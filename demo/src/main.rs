@@ -1,5 +1,42 @@
 use demo::{handle, handle_aop, Item, Request};
+use tracing_subscriber::fmt;
 use tracing_subscriber::fmt::format::FmtSpan;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
+
+/// Instala os dois destinos do trace: o arquivo diário e o stdout.
+/// O guard devolvido precisa viver até o fim do `main` para o buffer esvaziar.
+fn instalar_tracing(dir: std::path::PathBuf) -> tracing_appender::non_blocking::WorkerGuard {
+    std::fs::create_dir_all(&dir).expect("criar o diretório de log");
+    let appender = tracing_appender::rolling::RollingFileAppender::builder()
+        .rotation(tracing_appender::rolling::Rotation::DAILY)
+        .filename_prefix("demo.log")
+        .build(&dir)
+        .expect("criar o appender do log");
+    let (non_blocking, guard) = tracing_appender::non_blocking(appender);
+
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::filter::LevelFilter::INFO)
+        // O layer do arquivo vem primeiro: o cache de campos formatados é
+        // compartilhado por tipo de formatter, e a primeira layer a gravar
+        // os campos define o modo ANSI deles. Com o arquivo primeiro, o
+        // arquivo fica limpo (o terminal ganha os campos sem cor, e mantém
+        // cor no timestamp, nível e nome do span).
+        .with(
+            fmt::Layer::new()
+                .with_writer(non_blocking)
+                .with_ansi(false)
+                .with_span_events(FmtSpan::CLOSE),
+        )
+        .with(
+            fmt::Layer::new()
+                .with_writer(std::io::stdout)
+                .with_span_events(FmtSpan::CLOSE),
+        )
+        .init();
+
+    guard
+}
 
 #[tokio::main]
 async fn main() {
@@ -10,10 +47,10 @@ async fn main() {
         std::process::exit(2);
     }
 
-    tracing_subscriber::fmt()
-        .with_span_events(FmtSpan::CLOSE)
-        .with_max_level(tracing::Level::INFO)
-        .init();
+    let dir = std::env::var_os("DEMO_LOG_DIR")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| std::path::PathBuf::from("logs"));
+    let guard = instalar_tracing(dir);
 
     let req = Request {
         customer_id: 1,
@@ -33,6 +70,9 @@ async fn main() {
         Ok(resp) => println!("resposta: {resp:?}"),
         Err(err) => {
             eprintln!("erro: {err}");
+            // `process::exit` não roda o drop do guard; soltá-lo aqui
+            // garante o flush antes de sair.
+            drop(guard);
             std::process::exit(1);
         }
     }
