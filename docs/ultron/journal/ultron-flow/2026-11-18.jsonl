@@ -1,0 +1,1 @@
+{"ts": "2026-11-18T18:25:47.998Z", "skill": "ultron-flow", "action": "gate", "summary": "verify não reconheceu a stack ao fechar 0001-aop-spans-por-etapa", "task": "0001-aop-spans-por-etapa", "branch": "feature/0001-aop-spans-por-etapa", "outcome": "blocked", "gate": "verify"}
