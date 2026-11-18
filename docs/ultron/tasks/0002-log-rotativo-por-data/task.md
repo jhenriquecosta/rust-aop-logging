@@ -58,4 +58,6 @@ Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
 ## Exceções registradas
 
 - Portão `logging` (médio) do coder desviado em 2026-11-18: o projeto não tem `docs/ultron/agents/logging.md`, mas o PRD-0002 fixa a configuração de logging da feature (dois sinks, `FmtSpan::CLOSE`, retenção de 7, writer não bloqueante); uma convenção separada duplicaria a decisão. Aprovado pelo Operador.
-- Portão `verify` do arsenal (2026-11-18): o `verify_all.sh` não tem ramo Rust e sai `2` (nada verificado). A fatia 1 foi verificada manualmente: `cargo build`, `cargo clippy --workspace --all-targets -- -D warnings` e `cargo test` — 15 testes verdes.
+- Portão `verify` do arsenal (2026-11-18): o `verify_all.sh` não tem ramo Rust e sai `2` (nada verificado). As fatias 1–3 foram verificadas manualmente: `cargo build`, `cargo clippy --workspace --all-targets -- -D warnings` e `cargo test` — 16 testes verdes.
+- Trade-off de ANSI (2026-11-18): o layer do arquivo vem primeiro para o arquivo ficar sem ANSI; os campos de span no terminal perdem a cor (timestamp, nível, nome do span e `time.*` continuam coloridos). Registrado no código e no `tdd-progress.md`.
+- SCA (2026-11-18): não houve auditoria de CVE — o `deps_audit.py` não lê `Cargo.lock` e `cargo audit`/`cargo deny` não estão instalados. O PRD registra a lacuna e recomenda instalar o `cargo-audit`.

@@ -104,7 +104,7 @@ ls logs/                                   # demo.log.2026-11-18
 2026-11-18T19:35:21.401106Z  INFO handle:persist: demo: close time.busy=74.0µs time.idle=21.3ms
 ```
 
-**Encerramento:** o writer é não bloqueante. O guard que mantém a fila viva fica no `main` até o fim e esvazia o buffer no drop. Encerramento abrupto — `panic` não capturado ou `std::process::exit` — pode perder as últimas linhas; o caminho de erro do demo solta o guard antes de sair.
+**Encerramento e saturação:** o writer é não bloqueante. O guard que mantém a fila viva fica no `main` até o fim e esvazia o buffer no drop. A fila é lossy — o buffer padrão é de 128 mil linhas — e, sob saturação, linhas podem ser descartadas. Encerramento abrupto — `std::process::exit` ou abort — pode perder as últimas linhas; o caminho de erro do demo solta o guard antes de sair.
 
 ---
 
@@ -177,6 +177,7 @@ demo/tests/         captura de spans, macro, CLI, pipeline e log em arquivo
 - **IO simulado** com `tokio::time::sleep`; o CPU é trabalho determinístico. Não há rede nem banco.
 - **Rotação em UTC.** A data do nome é UTC: em UTC-3, o arquivo do dia D começa às 21:00 do dia D-1 local. A crate não oferece fuso local; uma rotação com data local exigiria um writer próprio.
 - **Retenção por contagem.** `max_log_files(7)` limita o número de arquivos, não o tamanho de cada um. A poda é pelo tempo de criação (btime), com fallback para a data do nome.
+- **Formato texto, sem compressão.** O arquivo é texto plano — sem JSON/estruturado — e os arquivos antigos não são comprimidos.
 - **Writer não bloqueante.** As linhas passam por uma fila; um encerramento abrupto pode perder as últimas. O `main` solta o guard antes do `exit(1)`.
 - **`aspect-rs` só na comparação** — não é dependência, pelos motivos acima.
 - **OTLP não implementado** — documentado como caminho de produção.

@@ -90,22 +90,24 @@ fn baseline_com_demo_log_dir_cria_o_arquivo_do_dia() {
 }
 
 #[test]
-fn arquivo_nao_tem_codigos_ansi() {
-    let dir = DirTemporario::novo("sem-ansi");
-    let out = executar("baseline", dir.caminho());
-    assert!(
-        out.status.success(),
-        "binário falhou: status={:?} stderr={}",
-        out.status,
-        String::from_utf8_lossy(&out.stderr)
-    );
+fn arquivo_nao_tem_codigos_ansi_nos_dois_modos() {
+    for modo in ["baseline", "aop"] {
+        let dir = DirTemporario::novo(&format!("sem-ansi-{modo}"));
+        let out = executar(modo, dir.caminho());
+        assert!(
+            out.status.success(),
+            "binário falhou em {modo}: status={:?} stderr={}",
+            out.status,
+            String::from_utf8_lossy(&out.stderr)
+        );
 
-    let esperado = dir.caminho().join(format!("demo.log.{}", data_utc_hoje()));
-    let conteudo = std::fs::read_to_string(&esperado).expect("ler o arquivo do dia");
-    assert!(
-        !conteudo.contains('\u{1b}'),
-        "arquivo contém códigos ANSI: {conteudo:?}"
-    );
+        let esperado = dir.caminho().join(format!("demo.log.{}", data_utc_hoje()));
+        let conteudo = std::fs::read_to_string(&esperado).expect("ler o arquivo do dia");
+        assert!(
+            !conteudo.contains('\u{1b}'),
+            "arquivo de {modo} contém códigos ANSI: {conteudo:?}"
+        );
+    }
 }
 
 #[test]
@@ -243,6 +245,10 @@ fn sem_demo_log_dir_usa_logs_sob_o_cwd() {
 #[test]
 fn retencao_mantem_no_maximo_sete_arquivos_diarios() {
     let dir = DirTemporario::novo("retencao");
+    // A poda da crate ordena pelo tempo de criação (btime), com fallback
+    // para a data do nome. Os arquivos semeados precisam de criação
+    // distinta e na ordem das datas; 300 ms é folgado para a granularidade
+    // do btime nos filesystems comuns.
     for dia in 1..=8 {
         let data = format!("2026-11-{dia:02}");
         std::fs::write(
@@ -250,6 +256,7 @@ fn retencao_mantem_no_maximo_sete_arquivos_diarios() {
             b"anterior\n",
         )
         .expect("semear um arquivo antigo");
+        std::thread::sleep(std::time::Duration::from_millis(300));
     }
 
     let out = executar("baseline", dir.caminho());
@@ -260,12 +267,6 @@ fn retencao_mantem_no_maximo_sete_arquivos_diarios() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    // A crate poda pela data de criação (btime), não pela data do nome; com
-    // fallback para a data do nome quando o sistema não informa btime.
-    // Arquivos semeados no mesmo instante têm o mesmo btime, então não
-    // provam qual some; o contrato que a nossa configuração garante — e o
-    // que este teste afirma — é o teto de 7. Com um arquivo por dia, o btime
-    // acompanha a data e o mais antigo é o que sai.
     let arquivos = dir.arquivos();
     let diarios: Vec<&String> = arquivos
         .iter()
@@ -275,6 +276,10 @@ fn retencao_mantem_no_maximo_sete_arquivos_diarios() {
         diarios.len() <= 7,
         "esperava no máximo 7 arquivos diários, encontrei {}: {diarios:?}",
         diarios.len()
+    );
+    assert!(
+        !arquivos.iter().any(|nome| nome == "demo.log.2026-11-01"),
+        "o arquivo mais antigo deveria ter sido removido; encontrados: {arquivos:?}"
     );
     let hoje = format!("demo.log.{}", data_utc_hoje());
     assert!(

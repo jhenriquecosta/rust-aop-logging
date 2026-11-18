@@ -6,7 +6,7 @@
 | **Projeto** | rust-aop-logging |
 | **Autor** | ULTRON · skill ultron-prd — Operador: J Henrique Costa |
 | **Data** | 2026-11-18 |
-| **Versão do documento** | 1.1 |
+| **Versão do documento** | 1.2 |
 | **Status** | draft |
 | **Rastreabilidade** | Task 0002-log-rotativo-por-data · branch `feature/0002-log-rotativo-por-data` |
 
@@ -42,7 +42,7 @@ O binário instala **dois sinks do mesmo trace**: o `stdout` que já existe e um
 - **Dependência:** `tracing-appender = "=0.2.5"` (research 0002), sem features. MSRV 1.63, compatível com `tracing 0.1.44` e `tracing-subscriber 0.3.23`. O pin segue o estilo do workspace.
 - **Dois sinks, um trace:** um `registry()` com dois `fmt::Layer` — stdout com o formato atual (ANSI ligado), arquivo com `with_ansi(false)`. Ambos com `FmtSpan::CLOSE` e nível `INFO`. A composição do subscriber permanece no entrypoint do binário; o crate `demo` não ganha API pública nova.
 - **Fuso — decisão consciente:** a crate só anexa data **em UTC** e o builder não oferece fuso nem formato. A descoberta pedia data local; a research mostrou que atendê-la exigiria rotação própria. **Decisão: aceitar UTC e documentar**, em vez de trocar o `RollingFileAppender` por uma rotação artesanal. Em UTC-3, o arquivo "do dia N" começa às 21:00 do dia N-1 local — o README diz isso.
-- **Diretório e nome:** padrão `logs/` na raiz do projeto (no `.gitignore`), sobrescrito por `DEMO_LOG_DIR`. Prefixo `demo.log` → `demo.log.yyyy-MM-dd`.
+- **Diretório e nome:** padrão `logs/` relativo ao diretório de execução (no `.gitignore`), sobrescrito por `DEMO_LOG_DIR`. Prefixo `demo.log` → `demo.log.yyyy-MM-dd`.
 - **Retenção:** `max_log_files(7)`. É teto por contagem de arquivos, não por tamanho; a doc ressalva que a contagem pode ocasionalmente ficar abaixo do máximo, e que `0` desabilita a remoção. O README registra a ressalva.
 - **Writer não bloqueante:** `tracing_appender::non_blocking` com o `WorkerGuard` ligado a uma variável nomeada no `main`, vivo até o fim. A fila é lossy por padrão (buffer de 128 mil linhas); o README registra que, sob saturação, linhas podem ser descartadas.
 - **Flush no caminho de erro:** o `main` atual chama `std::process::exit(1)` no erro do pipeline, **depois** de o trace ter sido emitido; a doc do guard diz que `process::exit` pode perder as últimas linhas. O caminho de erro passa a **retornar `ExitCode`** (ou a dropar o guard antes de sair). O `exit(2)` de uso inválido permanece: acontece antes de instalar o subscriber.
@@ -91,7 +91,7 @@ Retrato atual (informativo, sem juízo de segurança): dependências diretas fix
 - [AC4] O terminal continua recebendo o trace nos dois modos, no formato atual.
 - [AC5] O arquivo não contém sequências de escape ANSI.
 - [AC6] Com 8 arquivos diários pré-existentes no diretório apontado, uma execução deixa no máximo 7 arquivos. A poda é por ordem de criação (btime), com fallback para a data do nome quando o sistema não informa btime; com um arquivo por dia, é o mais antigo que sai.
-- [AC7] Sem `DEMO_LOG_DIR`, os arquivos vão para `logs/` na raiz do projeto, e `logs/` está no `.gitignore`.
+- [AC7] Sem `DEMO_LOG_DIR`, os arquivos vão para `./logs` sob o diretório de execução, e `logs/` está no `.gitignore`.
 - [AC8] O README documenta o diretório, a rotação diária em UTC (com o deslocamento local), a retenção de 7, `DEMO_LOG_DIR`, o comportamento não bloqueante com guard e o comando de execução.
 - [AC9] O `Cargo.toml` fixa `tracing-appender = "=0.2.5"`; build, clippy e a suíte completa — incluindo os 9 testes existentes — seguem verdes.
 
@@ -105,6 +105,7 @@ Descoberta da task 0002 (2026-11-18) e `research.md` da mesma task — versão e
 
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
+| 1.2 | 2026-11-18 | ULTRON · ultron-review | AC7 e decisão de diretório alinhadas ao comportamento: `./logs` relativo ao diretório de execução |
 | 1.1 | 2026-11-18 | ULTRON · ultron-tdd | AC6 ajustado ao contrato testável: teto de 7; a crate poda por btime, com fallback para a data do nome |
 | 1.0 | 2026-11-18 | ULTRON · ultron-prd | Versão inicial, a partir da descoberta e da research 0002 |
 
