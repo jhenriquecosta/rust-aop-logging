@@ -5,7 +5,7 @@ branch: feature/0001-aop-spans-por-etapa
 estado: em andamento
 worktree: .claude/worktrees/feature-0001-aop-spans-por-etapa
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-coder
+next_skill: ultron-verify
 
 ## Objetivo
 
@@ -40,12 +40,12 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 
 ## Critérios de aceitação
 
-- [ ] O workspace compila e roda com `cargo run -- baseline` e `cargo run -- aop`.
-- [ ] No modo `aop`, cada etapa do pipeline emite um span próprio com duração visível na saída.
-- [ ] No modo `baseline`, aparecem o span externo e os spans de IO, e nenhum span de etapa CPU (reproduz o problema).
-- [ ] A instrumentação das etapas CPU vem da macro `#[aop_span]`, não de chamadas manuais de span espalhadas.
-- [ ] O README explica o que é AOP em Rust, mostra o antes/depois e compara com `aspect-rs` e OTLP.
-- [ ] Os testes de captura verificam os spans emitidos em ambos os modos.
+- [x] O workspace compila e roda com `cargo run -- baseline` e `cargo run -- aop`.
+- [x] No modo `aop`, cada etapa do pipeline emite um span próprio com duração visível na saída.
+- [x] No modo `baseline`, aparecem o span externo e os spans de IO, e nenhum span de etapa CPU (reproduz o problema).
+- [x] A instrumentação das etapas CPU vem da macro `#[aop_span]`, não de chamadas manuais de span espalhadas.
+- [x] O README explica o que é AOP em Rust, mostra o antes/depois e compara com `aspect-rs` e OTLP.
+- [x] Os testes de captura verificam os spans emitidos em ambos os modos.
 
 ## Questões abertas (para /ultron-research)
 
@@ -61,10 +61,11 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 | 1 | Pipeline executável no modo `baseline` | — (local) | concluída · verificada 2026-11-18 |
 | 2 | Macro `#[aop_span]` e modo `aop` | — (local) | concluída · verificada 2026-11-18 |
 | 3 | Macro em `async fn` + captura de spans | — (local) | concluída · verificada 2026-11-18 |
-| 4 | README e comparação | — (local) | pendente |
+| 4 | README e comparação | — (local) | concluída · verificada 2026-11-18 |
 
 Os corpos estão em `slices/` (fatias 01–04), na ordem de execução.
 
 ## Exceções registradas
 
 - Portão `logging` (médio) do coder desviado em 2026-11-18: o PRD fixa a configuração do subscriber (`fmt` + `FmtSpan::CLOSE`) e a estrutura de spans por etapa; uma convenção separada duplicaria a decisão. Aprovado pelo Operador.
+- Portão `verify` do fechamento (2026-11-18): o `verify_all.sh` do arsenal reconhece dotnet, maven, node e python — não Rust — e sai `2` (nada verificado). A verificação foi executada manualmente com `cargo build`, `cargo clippy --workspace --all-targets -- -D warnings` e `cargo test` (9 testes verdes).
