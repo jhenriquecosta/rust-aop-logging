@@ -195,3 +195,5 @@ demo/tests/         captura de spans, macro, CLI, pipeline e log em arquivo
 ## Manutenção
 
 **Responsável:** Henrique Costa · **Projeto:** rust-aop-logging (tracker local, issues em `docs/ultron/tasks/`)
+
+As skills do Ultron em `.claude/skills/` são instaladas localmente — symlinks para o checkout do arsenal — e não são versionadas; o `git clone` não as traz. Os artefatos do processo (tasks, PRDs, research, reviews) vivem em `docs/ultron/`.
