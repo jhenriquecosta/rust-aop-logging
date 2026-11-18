@@ -6,7 +6,7 @@
 | **Projeto** | rust-aop-logging |
 | **Autor** | ULTRON · skill ultron-prd — Operador: J Henrique Costa |
 | **Data** | 2026-11-18 |
-| **Versão do documento** | 1.1 |
+| **Versão do documento** | 1.2 |
 | **Status** | draft |
 | **Rastreabilidade** | Task 0001-aop-spans-por-etapa · branch `feature/0001-aop-spans-por-etapa` |
 
@@ -49,8 +49,8 @@ Um workspace Rust que demonstra instrumentação orientada a aspectos:
 - **Pipeline simulado:** `handle` (span externo) → `validate` (CPU) → `load_customer` (IO simulado) → `price` (CPU) → `apply_rules` (CPU) → `persist` (IO simulado) → `render` (CPU).
 - **Separação baseline/aop sem duplicar lógica:** cada etapa tem um corpo puro (`validate_impl`, `price_impl`, …) e uma versão fina anotada (`#[aop_span] fn validate(...)`), que delega ao corpo. O modo `baseline` chama os corpos puros; o modo `aop` chama as versões anotadas. A diferença entre os modos é exatamente a camada de aspecto.
 - **IO simulado:** `tokio::time::sleep` em clientes falsos (`CustomerClient`, `OrderRepository`), anotados com `#[instrument]` — representam o que a instrumentação automática já entrega em produção.
-- **CPU simulada:** trabalho determinístico com contagem de iterações ajustável, sem `sleep`, para as etapas terem duração mensurável.
-- **Macro `#[aop_span]`:** cria um span no nível `INFO` com o nome da função; em `async fn`, instrumenta o future com `tracing::Instrument`; emite um evento de conclusão com o tempo decorrido; aceita `name = "..."` para renomear o span. Suporta funções síncronas e assíncronas.
+- **CPU simulada:** trabalho determinístico (aritmética sobre os itens do pedido), sem `sleep`; as durações ficam em microssegundos e são visíveis na saída.
+- **Macro `#[aop_span]`:** cria um span no nível `INFO` com o nome da função; em `async fn`, instrumenta o future com `tracing::Instrument`; aceita `name = "..."` para renomear o span. Suporta funções síncronas e assíncronas. O evento de close com o tempo decorrido vem do `FmtSpan::CLOSE` configurado no subscriber (research 0001, pergunta 2), não de um evento emitido pela macro.
 - **Saída:** `tracing_subscriber::fmt` com `with_span_events(FmtSpan::CLOSE)` e timestamps habilitados — é o que faz a duração aparecer. OTLP fica documentado como caminho de produção, não implementado.
 - **Versões (fonte: research 0001):** `tracing 0.1.44`, `tracing-subscriber 0.3.23`, `tokio 1.54.1` (features `macros`, `rt-multi-thread`, `time`), `syn 3.0.10` (feature `full`), `quote 1.0.47`, `proc-macro2 1.0.107`; edição 2021; `rust-version = "1.85"` (MSRV do tokio).
 - **Pré-requisito de ambiente:** o host não tem toolchain Rust (`rustc`, `cargo`, `rustup` ausentes). A instalação é necessária antes do `coder`/`verify` e depende de aprovação do Operador.
@@ -109,6 +109,7 @@ Descoberta da task 0001 (2026-11-18) e `research.md` da mesma task — versões 
 
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
+| 1.2 | 2026-11-18 | ULTRON · ultron-coder | M2/M5 da revisão: CPU determinística sem iterações ajustáveis; o evento de close vem do `FmtSpan::CLOSE`, não da macro |
 | 1.1 | 2026-11-18 | ULTRON · ultron-slices | AC1 ajustado: baseline fiel à produção (IO instrumentado, CPU invisível) |
 | 1.0 | 2026-11-18 | ULTRON · ultron-prd | Versão inicial, a partir da descoberta e da research 0001 |
 

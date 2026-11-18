@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 
 use demo::{handle, handle_aop, Item, Request};
@@ -14,6 +14,8 @@ type SpanIds = HashMap<u64, String>;
 struct Capture {
     spans: Arc<Mutex<Spans>>,
     ids: Arc<Mutex<SpanIds>>,
+    entraram: Arc<Mutex<HashSet<String>>>,
+    fecharam: Arc<Mutex<HashSet<String>>>,
 }
 
 impl Capture {
@@ -34,6 +36,14 @@ impl Capture {
             .find(|(span, _)| span == name)
             .and_then(|(_, parent)| parent.clone())
     }
+
+    fn entrou(&self, name: &str) -> bool {
+        self.entraram.lock().unwrap().contains(name)
+    }
+
+    fn fechou(&self, name: &str) -> bool {
+        self.fecharam.lock().unwrap().contains(name)
+    }
 }
 
 impl<S: Subscriber> Layer<S> for Capture {
@@ -45,6 +55,18 @@ impl<S: Subscriber> Layer<S> for Capture {
             .and_then(|parent_id| self.ids.lock().unwrap().get(&parent_id.into_u64()).cloned());
         self.ids.lock().unwrap().insert(id.into_u64(), name.clone());
         self.spans.lock().unwrap().push((name, parent));
+    }
+
+    fn on_enter(&self, id: &tracing::span::Id, _ctx: Context<'_, S>) {
+        if let Some(name) = self.ids.lock().unwrap().get(&id.into_u64()).cloned() {
+            self.entraram.lock().unwrap().insert(name);
+        }
+    }
+
+    fn on_close(&self, id: tracing::span::Id, _ctx: Context<'_, S>) {
+        if let Some(name) = self.ids.lock().unwrap().get(&id.into_u64()).cloned() {
+            self.fecharam.lock().unwrap().insert(name);
+        }
     }
 }
 
@@ -106,6 +128,14 @@ async fn aop_aninha_as_etapas_sob_o_span_handle() {
             capture.parent_of(etapa).as_deref(),
             Some("handle"),
             "span {etapa} deveria estar sob `handle`; encontrados: {names:?}"
+        );
+        assert!(
+            capture.entrou(etapa),
+            "span {etapa} não foi entered; encontrados: {names:?}"
+        );
+        assert!(
+            capture.fechou(etapa),
+            "span {etapa} não foi fechado; encontrados: {names:?}"
         );
     }
 }
