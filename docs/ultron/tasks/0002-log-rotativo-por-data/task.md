@@ -5,7 +5,7 @@ branch: feature/0002-log-rotativo-por-data
 estado: em andamento
 worktree: .claude/worktrees/feature-0002-log-rotativo-por-data
 responsavel: jhenriquecosta@hotmail.com
-next_skill: ultron-coder
+next_skill: ultron-review
 
 Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação por data. A motivação é ter o trace persistido para análise posterior sem depender de um coletor. Os detalhes — granularidade da rotação (diária), nome e diretório do arquivo, retenção, formato e se o stdout continua — ficam para a descoberta.
 
@@ -39,7 +39,7 @@ Além do trace no terminal, a demo passa a gravar o log em arquivo com rotação
 |---|---|---|---|
 | 1 | Arquivo diário no binário | — (local) | concluída · verificada 2026-11-18 |
 | 2 | Retenção de 7 | — (local) | concluída · verificada 2026-11-18 |
-| 3 | README e fuso documentado | — (local) | publicada |
+| 3 | README e fuso documentado | — (local) | concluída · verificada 2026-11-18 |
 
 Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
 
@@ -52,7 +52,7 @@ Os corpos estão em `slices/` (fatias 01–03), na ordem de execução.
 - [x] AC5 — o arquivo não contém ANSI.
 - [x] AC6 — com 8 arquivos diários pré-existentes, uma execução deixa no máximo 7 (a poda é por btime; com um arquivo por dia, o mais antigo sai).
 - [x] AC7 — sem `DEMO_LOG_DIR`, os arquivos vão para `logs/`; `logs/` está no `.gitignore`.
-- [ ] AC8 — o README documenta diretório, rotação UTC, retenção, `DEMO_LOG_DIR`, guard e execução.
+- [x] AC8 — o README documenta diretório, rotação UTC, retenção, `DEMO_LOG_DIR`, guard e execução.
 - [x] AC9 — `tracing-appender =0.2.5` fixado; build, clippy e a suíte seguem verdes.
 
 ## Exceções registradas

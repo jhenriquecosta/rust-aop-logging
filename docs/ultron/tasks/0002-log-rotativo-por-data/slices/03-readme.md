@@ -14,7 +14,7 @@ Seção nova no README, curta e verificável contra o comportamento real:
 
 ## Critérios de aceite
 
-- [ ] AC8 — o README documenta diretório, rotação diária em UTC (com o deslocamento local), retenção de 7, `DEMO_LOG_DIR`, o comportamento não bloqueante com guard e o comando de execução.
+- [x] AC8 — o README documenta diretório, rotação diária em UTC (com o deslocamento local), retenção de 7, `DEMO_LOG_DIR`, o comportamento não bloqueante com guard e o comando de execução.
 
 ## Bloqueada por
 
