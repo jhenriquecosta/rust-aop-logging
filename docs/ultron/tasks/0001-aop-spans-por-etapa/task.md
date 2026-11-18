@@ -64,3 +64,7 @@ Blocos unidos em um único span; sem IO, não há instrumentação automática; 
 | 4 | README e comparação | — (local) | pendente |
 
 Os corpos estão em `slices/` (fatias 01–04), na ordem de execução.
+
+## Exceções registradas
+
+- Portão `logging` (médio) do coder desviado em 2026-11-18: o PRD fixa a configuração do subscriber (`fmt` + `FmtSpan::CLOSE`) e a estrutura de spans por etapa; uma convenção separada duplicaria a decisão. Aprovado pelo Operador.
